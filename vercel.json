@@ -1,0 +1,18 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "public": false,
+  "builds": [
+    { "src": "www/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/sw.js", "dest": "/www/sw.js", "headers": { "Cache-Control": "no-cache" } },
+    { "src": "/(.*)", "dest": "/www/$1" }
+  ],
+  "headers": [
+    {
+      "source": "/index.html",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+    }
+  ]
+}

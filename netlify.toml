@@ -1,0 +1,20 @@
+# Netlify 部署配置：直接把这个仓库连到 Netlify，或把 www/ 拖进 Netlify Drop
+[build]
+  publish = "www"
+  command = ""
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# SPA：任何路径都回退到外壳
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

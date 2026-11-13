@@ -1,0 +1,76 @@
+/* ============================================================
+   splash —— 启动页（深色版「科技造福人民 / 作者：李江」卡片）
+   纯前端控制显示时长；原生壳另有 Theme 级兜底启动图
+   ============================================================ */
+#splash{
+  position:fixed;top:0;right:0;bottom:0;left:0;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(120% 90% at 50% 0%,#16233d 0%,#0b0e14 62%);
+  transition:opacity .45s ease, visibility .45s;
+  overflow:hidden;
+}
+#splash.hide{opacity:0;visibility:hidden;pointer-events:none}
+
+/* 四角装饰线 */
+.splash-frame{position:absolute;top:26px;right:26px;bottom:26px;left:26px;pointer-events:none}
+.splash-frame span{position:absolute;width:18px;height:18px;border:1.5px solid rgba(255,255,255,.16)}
+.splash-frame span:nth-child(1){top:0;left:0;border-right:0;border-bottom:0}
+.splash-frame span:nth-child(2){top:0;right:0;border-left:0;border-bottom:0}
+.splash-frame span:nth-child(3){bottom:0;left:0;border-right:0;border-top:0}
+.splash-frame span:nth-child(4){bottom:0;right:0;border-left:0;border-top:0}
+
+.splash-inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:0}
+
+/* 图标圆环 */
+.splash-logo{
+  width:112px;height:112px;border-radius:28px;background:#fff;
+  display:grid;place-items:center;overflow:hidden;
+  box-shadow:0 18px 46px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.12);
+  animation:splashPop .7s cubic-bezier(.2,.9,.3,1.3) both;
+}
+.splash-logo img{width:100%;height:100%;object-fit:contain}
+@keyframes splashPop{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:none}}
+
+/* 应用名 */
+.splash-name{
+  margin-top:22px;font-size:30px;font-weight:800;letter-spacing:10px;text-indent:10px;
+  background:linear-gradient(180deg,#ffffff,#cfd9ea);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:fadeUp .6s .12s ease both;
+}
+.splash-tag{
+  margin-top:8px;font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.34);
+  animation:fadeUp .6s .2s ease both;
+}
+
+/* 两个红色标语牌 */
+.splash-badges{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:30px}
+.splash-badge{
+  padding:6px 18px;border-radius:999px;
+  background:linear-gradient(180deg,#d8546a,#c23c54);
+  color:#fff;font-size:13.5px;font-weight:600;letter-spacing:2px;
+  box-shadow:0 6px 18px rgba(194,60,84,.42),inset 0 1px 0 rgba(255,255,255,.35);
+  animation:fadeUp .6s .26s ease both;
+}
+.splash-badge.alt{animation-delay:.34s;font-size:12.5px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* 进度条 */
+.splash-bar{
+  position:absolute;bottom:74px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.splash-track{width:96px;height:2.5px;border-radius:2px;background:rgba(255,255,255,.13);overflow:hidden}
+.splash-track i{
+  display:block;height:100%;width:0;border-radius:2px;
+  background:linear-gradient(90deg,#4bb4ff,#8a7cff);
+  animation:splashLoad 1.5s cubic-bezier(.3,.2,.2,1) forwards;
+}
+@keyframes splashLoad{0%{width:0}40%{width:55%}100%{width:100%}}
+.splash-hint{font-size:10.5px;letter-spacing:2px;color:rgba(255,255,255,.26)}
+
+/* 底部品牌位 */
+.splash-foot{
+  position:absolute;bottom:32px;font-size:10px;letter-spacing:4px;
+  color:rgba(255,255,255,.18);
+}

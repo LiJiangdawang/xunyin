@@ -1,0 +1,103 @@
+name: 构建寻音 iOS IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: '构建类型'
+        required: false
+        default: 'Release'
+        type: choice
+        options:
+          - Release
+          - Debug
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - 'dist/**'
+      - '_preview/**'
+
+jobs:
+  ios:
+    name: 编译未签名 IPA
+    runs-on: macos-14
+    timeout-minutes: 40
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 显示 Xcode 版本
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app
+          xcodebuild -version
+          echo "---"
+          pod --version || echo "CocoaPods 未安装，稍后安装"
+
+      - name: 安装 Node 依赖
+        run: npm install --no-audit --no-fund
+
+      - name: 同步 Web 资源进 iOS 工程
+        run: npx cap sync ios
+
+      - name: 安装 CocoaPods 依赖
+        run: |
+          cd ios/App
+          rm -f Podfile.lock
+          pod install --repo-update
+
+      - name: 编译 App（不签名）
+        run: |
+          set -o pipefail
+          cd ios/App
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            ENABLE_BITCODE=NO \
+            ONLY_ACTIVE_ARCH=NO \
+            build 2>&1 | tail -40
+
+      - name: 打包 IPA
+        run: |
+          set -e
+          echo "=== 查找产物 ==="
+          find ios/App/build -name "*.app" -maxdepth 6 | head -5
+          APP=$(find ios/App/build -name "App.app" -maxdepth 6 | head -1)
+          if [ -z "$APP" ]; then echo "找不到 App.app"; exit 1; fi
+          echo "产物: $APP"
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          rm -rf Payload/App.app/_CodeSignature || true
+          zip -qry xunyin-unsigned.ipa Payload
+          ls -lh xunyin-unsigned.ipa
+          echo "=== IPA 内容 ==="
+          unzip -l xunyin-unsigned.ipa | head -20
+
+      - name: 上传 IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: xunyin-ios-ipa
+          path: xunyin-unsigned.ipa
+          retention-days: 30
+
+      - name: 上传编译日志
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: ios/App/build/**/*.log
+          if-no-files-found: ignore
+          retention-days: 7

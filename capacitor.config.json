@@ -1,0 +1,22 @@
+{
+  "appId": "com.xunyin.music",
+  "appName": "寻音",
+  "webDir": "www",
+  
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true
+  },
+  "ios": {
+    "contentInset": "always",
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "plugins": {
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0d1017"
+    }
+  }
+}

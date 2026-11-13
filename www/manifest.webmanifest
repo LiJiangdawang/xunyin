@@ -1,0 +1,19 @@
+{
+  "name": "寻音 XunYin",
+  "short_name": "寻音",
+  "description": "酷狗风格的本地优先音乐播放器：搜索、收藏、三档音质下载、离线播放",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "fullscreen"],
+  "orientation": "portrait",
+  "background_color": "#0b0e14",
+  "theme_color": "#0d1017",
+  "lang": "zh-CN",
+  "categories": ["music", "entertainment"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

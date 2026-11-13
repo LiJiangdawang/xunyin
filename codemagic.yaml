@@ -1,0 +1,91 @@
+# Codemagic 构建配置：不用绑卡就能编出 iOS IPA
+#
+# 用法（全部网页操作，约 5 分钟）：
+#   1. 打开 https://codemagic.io/signup
+#   2. 用你的 GitHub 账号登录（LiJiangdawang）
+#   3. 授权后选仓库 LiJiangdawang/xunyin
+#   4. 项目类型选 "Other" / 它会自动识别到本文件
+#   5. 点 "Start new build" → 选 ios-ipa 这个 workflow
+#   6. 等 10 分钟左右，构建页面上能直接下载 xunyin-unsigned.ipa
+#
+# 免费额度：每月 500 分钟 macOS 构建，够用 15~20 次。
+
+workflows:
+  ios-ipa:
+    name: 寻音 iOS 未签名 IPA
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      node: 20.11.1
+      xcode: 15.2
+      cocoapods: default
+      vars:
+        XCODE_WORKSPACE: "App.xcworkspace"
+        XCODE_SCHEME: "App"
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+
+    scripts:
+      - name: 安装 Node 依赖
+        script: |
+          npm install --no-audit --no-fund
+
+      - name: 同步 Web 资源到 iOS 工程
+        script: |
+          npx cap sync ios
+
+      - name: 安装 CocoaPods 依赖
+        script: |
+          cd ios/App
+          rm -f Podfile.lock
+          pod install --repo-update
+
+      - name: 编译 App（不签名）
+        script: |
+          set -e
+          cd ios/App
+          xcodebuild \
+            -workspace "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            ENABLE_BITCODE=NO \
+            ONLY_ACTIVE_ARCH=NO \
+            build
+
+      - name: 打包成 IPA
+        script: |
+          set -e
+          APP=$(find ios/App/build -name "App.app" -maxdepth 6 | head -1)
+          if [ -z "$APP" ]; then
+            echo "找不到 App.app，列出产物："
+            find ios/App/build -name "*.app" -maxdepth 6
+            exit 1
+          fi
+          echo "产物: $APP"
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          rm -rf Payload/App.app/_CodeSignature || true
+          zip -qry xunyin-unsigned.ipa Payload
+          ls -lh xunyin-unsigned.ipa
+
+    artifacts:
+      - xunyin-unsigned.ipa
+      - ios/App/build/**/*.app
+
+    publishing:
+      email:
+        recipients:
+          - your@email.com
+        notify:
+          success: true
+          failure: true

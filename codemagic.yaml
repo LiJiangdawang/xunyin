@@ -2,13 +2,13 @@
 #
 # 用法（全部网页操作，约 5 分钟）：
 #   1. 打开 https://codemagic.io/signup
-#   2. 用你的 GitHub 账号登录（LiJiangdawang）
-#   3. 授权后选仓库 LiJiangdawang/xunyin
-#   4. 项目类型选 "Other" / 它会自动识别到本文件
-#   5. 点 "Start new build" → 选 ios-ipa 这个 workflow
-#   6. 等 10 分钟左右，构建页面上能直接下载 xunyin-unsigned.ipa
+#   2. 用 GitHub 账号登录（LiJiangdawang），点 Authorize
+#   3. 选仓库 LiJiangdawang/xunyin
+#   4. 项目类型选 Other，Codemagic 会自动读取本文件
+#   5. 点 Start new build → 选 ios-ipa
+#   6. 等 10 分钟左右，构建页面 Artifacts 里直接下载 xunyin-unsigned.ipa
 #
-# 免费额度：每月 500 分钟 macOS 构建，够用 15~20 次。
+# 免费额度：每月 500 分钟 macOS 构建。
 
 workflows:
   ios-ipa:
@@ -17,18 +17,11 @@ workflows:
     max_build_duration: 60
     environment:
       node: 20.11.1
-      xcode: 15.2
+      xcode: latest
       cocoapods: default
       vars:
         XCODE_WORKSPACE: "App.xcworkspace"
         XCODE_SCHEME: "App"
-
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: main
-          include: true
 
     scripts:
       - name: 安装 Node 依赖
@@ -67,7 +60,7 @@ workflows:
           set -e
           APP=$(find ios/App/build -name "App.app" -maxdepth 6 | head -1)
           if [ -z "$APP" ]; then
-            echo "找不到 App.app，列出产物："
+            echo "找不到 App.app，列出所有产物："
             find ios/App/build -name "*.app" -maxdepth 6
             exit 1
           fi
@@ -80,12 +73,3 @@ workflows:
 
     artifacts:
       - xunyin-unsigned.ipa
-      - ios/App/build/**/*.app
-
-    publishing:
-      email:
-        recipients:
-          - your@email.com
-        notify:
-          success: true
-          failure: true

@@ -17,7 +17,6 @@ workflows:
     max_build_duration: 60
     environment:
       node: 20.11.1
-      xcode: latest
       cocoapods: default
       vars:
         XCODE_WORKSPACE: "App.xcworkspace"
